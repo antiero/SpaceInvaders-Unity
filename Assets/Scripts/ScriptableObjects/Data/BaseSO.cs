@@ -1,0 +1,34 @@
+﻿using UnityEngine;
+using UnityEngine.Events;
+
+namespace SpaceOrigin.Data
+{
+    /// <summary>
+    /// Base class for the scriptable objects
+    /// </summary>
+    public class BaseSO<T> : ScriptableObject 
+    {
+        [System.Serializable]
+        public class GenericEvent : UnityEvent<T>
+        {
+        }
+
+        public GenericEvent onValueChanged;
+
+        public T m_value;
+        public T Value
+        {
+            get { return m_value; }
+            set
+            {
+                onValueChanged.Invoke(value);
+                m_value = value;
+            }
+        }
+
+        public void OnEnable()
+        {
+            onValueChanged = new GenericEvent();
+        } 
+    }
+}
