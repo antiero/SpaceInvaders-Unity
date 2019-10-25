@@ -21,8 +21,9 @@ namespace SpaceOrigin.Data
             get { return m_value; }
             set
             {
-                onValueChanged.Invoke(value);
+                
                 m_value = value;
+                onValueChanged.Invoke(m_value);
             }
         }
 

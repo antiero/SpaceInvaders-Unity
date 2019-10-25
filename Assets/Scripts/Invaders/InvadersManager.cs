@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using SpaceOrigin.Utilities;
@@ -7,7 +8,7 @@ using SpaceOrigin.Data;
 namespace SpaceOrigin.SpaceInvaders
 {
     /// <summary>
-    /// controls the entire invader creation and movement
+    /// controls the entire invader creation, movement and firing of bullets
     /// </summary>
     public class InvadersManager : MonoBehaviour
     {
@@ -18,6 +19,10 @@ namespace SpaceOrigin.SpaceInvaders
         public int m_invaderRowLength = 11; // 11 elements in a row
         public InvaderTypes[] m_invaderTypeRow; // used for initialialy creating orderd grid
         public IntSO m_gameScoreSO; //  update the score on every invader kill
+        public IntSO m_totalAliveInvadersSO; // so objects holds the alive invaders, 0 means game over. using for avoid depencdency
+        public Transform m_bossSpawnPoint; // where the boss start moving
+        public AudioClip m_invaderExlodeClip;
+
         #endregion
 
         #region private variables
@@ -27,8 +32,8 @@ namespace SpaceOrigin.SpaceInvaders
         private Invader[][] m_invaderRows; // jaggy arry for storing invaders
         private int m_totalAliveInviders;
         private float m_invaderHorMovDirection = 1;// 1 right -1 left
-        private float m_horizonatalVeleocity = .05f; // amount movement on the horizontal Axis
-        private float m_verticalVeleocity = .25f; // amount movement on the vertical Axis
+        private float m_horizonatalVeleocity = .05f; // amount movement on the horizontal Axis //.05f
+        private float m_verticalVeleocity = .25f; // amount movement on the vertical Axis //0.25f
         private InvaderGridState m_invaderGridState;
         private float m_lastMoveUpdateTime;
         private float m_moveUpdateInterval = .5f;
@@ -37,10 +42,28 @@ namespace SpaceOrigin.SpaceInvaders
 
         // fire
         private float m_lastInvaderBulletTime;// when was the last time that you fired the bullet
-        private float m_invaderBulletInterval = 1.2f; //interval betwnn the bullets.. will randomize between some two values
+        private float m_invaderBulletInterval = 1.2f; //interval betwnn the bullets.
         private int m_lastFiredColumn;
         private Invader[] m_firableColumn;
         private bool m_firableColumnReady;
+
+        //boss
+        // if you kill  2 invaders of same column in row, that triggers a boss + also must be gained 150 more points from the last boss appearance
+        // also there is boss timer
+        // when the the eniemies are less timer dcreases
+        private int m_lastInviderColumnIndex;
+        private int m_lastInviderColumnIndexCntr = -1; // counts the  row
+        private int m_maxInvaderColumnCntr = 2; // how many invaders user need to kill in row to get a boss 
+        private int m_lastScoreBossShown;// last score when boss shoewed up
+        private int m_minScoreNeeded = 150;// min score gap from the lass boss
+
+        // counter based boss
+        private float m_lastBossShownTime;
+        private float m_bossInterval = 20.0f;
+        private Boss m_bossInvader = null;
+
+        //audio
+        private AudioSource m_audioSource;
         #endregion
 
         #region struct 
@@ -64,16 +87,14 @@ namespace SpaceOrigin.SpaceInvaders
             Created,
             Displayed,
             Moving,
-            Pause
+            Pause // pause the movement
         }
         #endregion
 
         #region unity events
-        // Start is called before the first frame update
-        void Start()
+        void Awake()
         {
-            CreateInvaderGrid();
-            StartCoroutine(ShowAllInviders());
+            m_audioSource = GetComponent<AudioSource>();
         }
 
         // Update is called once per frame
@@ -81,7 +102,7 @@ namespace SpaceOrigin.SpaceInvaders
         {
             if (m_invaderGridState == InvaderGridState.Moving)
             {
-                if (m_lastMoveUpdateTime + m_moveUpdateInterval <= Time.time)
+                if (m_lastMoveUpdateTime + m_moveUpdateInterval <= Time.time)// this controlls this speed of invaders
                 {
                     StartCoroutine(UpdateInvaderMovementHoriZontal()); // updating horizontal invader moves
                     m_lastMoveUpdateTime = Time.time;
@@ -92,25 +113,85 @@ namespace SpaceOrigin.SpaceInvaders
                     UpdateInvaderMovementVertical(); // if we reached boundary move down a row
 
 
-                if (m_firableColumnReady && m_lastInvaderBulletTime + m_invaderBulletInterval <= Time.time)
+                if (m_firableColumnReady && m_lastInvaderBulletTime + m_invaderBulletInterval <= Time.time) // time to fire another bullet?
                 {
                     FireBullet();
                     m_lastInvaderBulletTime = Time.time;
-                   // m_invaderBulletInterval = Random.RandomRange();
+                }
+
+                if (m_bossInvader == null && m_lastBossShownTime + m_bossInterval <= Time.time)
+                {
+                    Debug.Log("creating new boss : SYSTEM Generated");
+                    CreatNewBoss();
+                    m_lastBossShownTime = Time.time;
                 }
             }
         }
         #endregion
 
         #region public methodes
-        public void DestroyInvader(Invader thisInvader)
+        //creates new invader grid and dispay it on the screen with animation
+        public void CreateAndShowInvaders(Action onComplete)
         {
-            m_totalAliveInviders--;
+            Debug.Log("Creating invaders");
+            CreateInvaderGrid();
+            StartCoroutine(ShowAllInviders(onComplete));
+        }
 
-            if (m_totalAliveInviders == 0) //  next wave
+        public void RemoveBoss()
+        {
+            m_bossInvader = null;
+        }
+
+        public void DestroyBoss(Boss boss)
+        {
+            SpaceInvaderAbstractFactory spaceInvaderFactory = SpaceInvaderFactoryProducer.GetFactory("EffectsFactory");
+            Effects bossExplodeEffect = spaceInvaderFactory.GetEffects(EffectsType.BossExplode);
+            bossExplodeEffect.transform.position = boss.transform.position;
+            bossExplodeEffect.gameObject.SetActive(true);
+            bossExplodeEffect.DestroyAfterSomeTime(.15f);
+
+            spaceInvaderFactory = SpaceInvaderFactoryProducer.GetFactory("BossFactory"); // accessomg boss factoy
+            spaceInvaderFactory.RecycleBoss(boss);
+            boss.gameObject.SetActive(false);
+            m_audioSource.PlayOneShot(m_invaderExlodeClip);
+            m_bossInvader = null;
+
+            // score
+            // for now, if the inviders move right it is 100, 50 left move not really a mystery :(
+            int bossKillScore = m_invaderHorMovDirection > 0 ? 100 : 50;
+            m_gameScoreSO.Value = m_gameScoreSO.Value + bossKillScore;
+        }
+
+        // called when player bullet hit on invader. check invader script
+        public void DestroyInvader(Invader thisInvader) 
+        {
+            // for boss checking
+            if (m_lastInviderColumnIndexCntr < 0)
             {
-                // for now there wont be any new level game will be over 
+                m_lastInviderColumnIndex = thisInvader.m_coumnIndex; m_lastInviderColumnIndexCntr = 1;
             }
+            else
+            {
+                int cntr = m_lastInviderColumnIndex == thisInvader.m_coumnIndex ? m_lastInviderColumnIndexCntr + 1 : 1; // adding to the colmns index 
+                m_lastInviderColumnIndexCntr = cntr;
+                m_lastInviderColumnIndex = thisInvader.m_coumnIndex;
+            }
+
+            bool timetoBoSS = m_lastInviderColumnIndexCntr >= m_maxInvaderColumnCntr ? true : false;
+            if (timetoBoSS && m_lastScoreBossShown + m_minScoreNeeded < m_gameScoreSO.Value)
+            {
+                if (m_bossInvader == null)
+                {
+                    m_lastScoreBossShown = m_gameScoreSO.Value;
+                    CreatNewBoss();
+                    Debug.Log("creating new boss : USER Generated");
+                    m_lastBossShownTime = Time.time;
+                } 
+            }
+
+            m_totalAliveInviders--; // decrement the invader count
+            m_totalAliveInvadersSO.Value = m_totalAliveInviders;
             m_gameScoreSO.Value = m_gameScoreSO.Value + thisInvader.m_killValue.Value;
             Vector3 invaderLastPos = thisInvader.transform.position;
 
@@ -124,12 +205,26 @@ namespace SpaceOrigin.SpaceInvaders
             invadeExplodeEffect.transform.position = invaderLastPos;
             invadeExplodeEffect.gameObject.SetActive(true);
             invadeExplodeEffect.DestroyAfterSomeTime(.15f);
+            m_audioSource.PlayOneShot(m_invaderExlodeClip);
+
             UpdateTimeIntervalOFMove(); // check against the number of inviders left and increas the move speed 
+
+            if (m_totalAliveInviders == 0) //  next wave
+            {
+                m_invaderGridState = InvaderGridState.Pause;
+                return;
+                // for now there wont be any new waves, game will be over at this point
+                // wil add new wave feature in the next update
+            }
+        }
+        public void SetStateToPause()
+        {
+            m_invaderGridState = InvaderGridState.Pause;
         }
         #endregion
 
-
         #region private methodes
+        // initializes inivader manger
         private void Initialize()
         {
             m_totalAliveInviders = 0;
@@ -137,6 +232,7 @@ namespace SpaceOrigin.SpaceInvaders
             m_moveUpdateInterval = .5f;
         }
 
+        // updates the invader row movement speed based on no of invaders alive
         private void UpdateTimeIntervalOFMove()
         {
             if (m_totalAliveInviders <= 1)
@@ -149,6 +245,7 @@ namespace SpaceOrigin.SpaceInvaders
             }
             else if (m_totalAliveInviders <= 5)
             {
+                m_bossInterval = 15.0f; // more frequent bosses
                 m_moveUpdateInterval = .06f;
             }
             else if (m_totalAliveInviders <= 10)
@@ -161,7 +258,8 @@ namespace SpaceOrigin.SpaceInvaders
             }
         }
 
-        // creates the Invaders in grid manner
+        // creates the Invaders in a grid manner
+        // with the help of Grid class, this creates a new invader grids and stores in an jagged array
         private void CreateInvaderGrid()
         {
             if (m_invaderTypeRow.Length < 1) return;
@@ -194,7 +292,8 @@ namespace SpaceOrigin.SpaceInvaders
                     invader.m_invaderManger = this;
                     invader.m_rowIndex = i;
                     invader.m_coumnIndex = j;
-                    m_totalAliveInviders++; 
+                    m_totalAliveInviders++;
+                    m_totalAliveInvadersSO.Value = m_totalAliveInviders;
                     m_invaderRows[i][j] = invader; // assigning to the invader array 
                 }
             }
@@ -205,7 +304,7 @@ namespace SpaceOrigin.SpaceInvaders
         }
 
         // Showing invaders with animation
-        private IEnumerator ShowAllInviders()
+        private IEnumerator ShowAllInviders(Action onComplete)
         {
             for (int i = m_invaderRows.Length - 1; i >= 0; i--) // start looping from bottom left
             {
@@ -223,8 +322,11 @@ namespace SpaceOrigin.SpaceInvaders
 
             m_invaderHorMovDirection = 1; // setting moving directio as right
             m_invaderGridState = InvaderGridState.Moving;
+            m_lastBossShownTime = Time.time;
+
             yield return null;
 
+            onComplete?.Invoke();
         }
        
         //Moves Invader in horizontal Axis
@@ -243,8 +345,7 @@ namespace SpaceOrigin.SpaceInvaders
                     Invader invader = invaderRow[j];
                     if (invader != null)
                     {
-                        Vector3 horizontalDeltaMove = new Vector3( m_invaderHorMovDirection* m_horizonatalVeleocity, 0, 0);
-
+                        Vector3 horizontalDeltaMove = new Vector3( m_invaderHorMovDirection* m_horizonatalVeleocity, 0, 0); // calculate new move delta
                         invader.Move(horizontalDeltaMove);
                         invader.PlayAnimation();
 
@@ -342,7 +443,7 @@ namespace SpaceOrigin.SpaceInvaders
                 }
             }
 
-            newFireColumn = nonEmptyFirableColumnIndexs[Random.Range(0, nonEmptyFirableColumnIndexs.Count)];
+            newFireColumn = nonEmptyFirableColumnIndexs[UnityEngine.Random.Range(0, nonEmptyFirableColumnIndexs.Count)];
 
             Invader fireInvader = m_firableColumn[newFireColumn];
             Vector3 firePosition = fireInvader.transform.position;
@@ -354,6 +455,29 @@ namespace SpaceOrigin.SpaceInvaders
             invaderBullet.gameObject.transform.rotation = Quaternion.identity;
             invaderBullet.gameObject.SetActive(true);
         }
+
+        private void CreatNewBoss()
+        {
+            SpaceInvaderAbstractFactory spaceInvaderFactory = SpaceInvaderFactoryProducer.GetFactory("BossFactory"); // accessomg InvaderFactory                                                                                            
+            Boss boss = spaceInvaderFactory.GetBoss();
+            boss.m_invaderManger = this;
+            Vector3 spawnPosition = m_bossSpawnPoint.position;
+
+            if (m_invaderHorMovDirection > 0)
+            {
+                boss.m_directionMove = m_invaderHorMovDirection; // boss always move in the same direction of invaders
+                boss.transform.gameObject.transform.position = new Vector3(-3.5f, spawnPosition.y, spawnPosition.z);
+            }
+            else
+            {
+                boss.m_directionMove = m_invaderHorMovDirection;
+                boss.transform.gameObject.transform.position = new Vector3(3.5f, spawnPosition.y, spawnPosition.z);
+            }
+            boss.transform.gameObject.SetActive(true);
+            m_bossInvader = boss;
+            boss.PlaySound();
+        }
+
         #endregion
     }
 

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
+/// <summary>
+/// produces different factories
+/// </summary>
 namespace SpaceOrigin.SpaceInvaders
 {
     public class SpaceInvaderFactoryProducer 
@@ -23,6 +24,12 @@ namespace SpaceOrigin.SpaceInvaders
 
                 case "EffectsFactory":
                     return new EffectsFactory();
+
+                case "PlayerFactory":
+                    return new PlayerFactory();
+
+                case "BossFactory":
+                    return new BossFactory();
 
                 default:
                     return null;

@@ -52,6 +52,10 @@ namespace SpaceOrigin.SpaceInvaders
                     other.gameObject.GetComponent<PlayerBullet>().DestroyBullet();
                 }
             }
+            else if (other.gameObject.tag == "Invader")
+            {
+                Destroy(gameObject);
+            }
         }
         #endregion
 
@@ -72,8 +76,8 @@ namespace SpaceOrigin.SpaceInvaders
 
                 pixel = new Color(0,0,0,0);
                 Texture2D sourceTex = m_bunkerSprite.sprite.texture;
-                var pix = sourceTex.GetPixels32();
-                var destTex = new Texture2D(sourceTex.width, sourceTex.height);
+                Color32[] pix = sourceTex.GetPixels32();
+                Texture2D destTex = new Texture2D(sourceTex.width, sourceTex.height);
                 destTex.SetPixels32(pix);
 
                 destTex.wrapMode = TextureWrapMode.Clamp;
@@ -83,7 +87,7 @@ namespace SpaceOrigin.SpaceInvaders
                 int columnRange = Random.Range(4, 10);
                 int yDestroyDirection = (int)Mathf.Sign(hitDir.y);
 
-                for (int i = 0; i < rowLenght; i++)
+                for (int i = 0; i < rowLenght; i++) // i have to write some better code
                 {
                     for (int j = 0; j < columnRange; j++)
                     {
@@ -107,10 +111,8 @@ namespace SpaceOrigin.SpaceInvaders
             Vector2 localPos = transform.InverseTransformPoint(worldPos) * ppu;
             var texSpacePivot = new Vector2(m_bunkerSprite.sprite.rect.x, m_bunkerSprite.sprite.rect.y) + m_bunkerSprite.sprite.pivot;
             Vector2 texSpaceCoord = texSpacePivot + localPos;
-
             return texSpaceCoord;
         }
-
         #endregion
     }
 }

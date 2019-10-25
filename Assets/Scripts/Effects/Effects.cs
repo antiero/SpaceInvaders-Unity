@@ -7,11 +7,16 @@ namespace SpaceOrigin.SpaceInvaders
 {
     public enum EffectsType
     {
-        AlianExplodeEffect
+        AlianExplodeEffect, // enum must be the same name as gameobject, will later change factory implementation
+        PlayerbulletExplode,
+        PlayerExplode,
+        BossExplode
     }
 
     public class Effects : MonoBehaviour
     {
+        public EffectsType m_effectsType;
+
         public void DestroyAfterSomeTime(float time)
         {
             Invoke("DestroyEffect", time);

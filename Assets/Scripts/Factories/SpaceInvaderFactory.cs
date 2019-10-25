@@ -28,6 +28,16 @@ namespace SpaceOrigin.SpaceInvaders
             return null;
         }
 
+        public override Player GetPlayer()
+        {
+            return null;
+        }
+
+        public override Boss GetBoss()
+        {
+            return null;
+        }
+
         public override void RecyclePlayerBullet(PlayerBullet playerbullet)
         {
             
@@ -44,5 +54,13 @@ namespace SpaceOrigin.SpaceInvaders
         public override void RecycleInvaderBullet(InvaderBullet invaderBullet)
         {  
         }
+
+        public override void RecyclePlayer(Player player)
+        {
+        }
+
+        public override void RecycleBoss(Boss boss)
+        {
+        }  
     }
 }

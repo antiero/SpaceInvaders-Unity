@@ -11,7 +11,6 @@ namespace SpaceOrigin.SpaceInvaders
     /// </summary>
     public enum InvaderTypes
     {
-        UFO, // psoints
         Octopus, //30 psoints
         Crab, // 20 points
         Squid // 10 points  

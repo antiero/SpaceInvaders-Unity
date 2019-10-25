@@ -42,7 +42,7 @@ namespace SpaceOrigin.SpaceInvaders
             if (col.gameObject.tag == "Player")
             {
                 Destroy();
-               // col.gameObject.GetComponent<Invader>().Kill();
+                col.gameObject.GetComponent<Player>().Kill();
             }
 
             if (col.gameObject.tag == "Border")

@@ -99,7 +99,7 @@ MonoBehaviour:
   m_walkStateSprites:
   - {fileID: 5767124052082980154, guid: ce2961cc651f32640a1188fbdf8e2358, type: 3}
   - {fileID: 7516698786758832298, guid: ce2961cc651f32640a1188fbdf8e2358, type: 3}
-  m_type: 3
+  m_type: 2
   m_killValue: {fileID: 11400000, guid: 8ddf7a7e68b49af4ba1cadc2b80d1f26, type: 2}
   m_invaderManger: {fileID: 0}
   m_rowIndex: 0

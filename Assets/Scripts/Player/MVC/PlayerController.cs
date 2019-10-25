@@ -5,6 +5,9 @@ using SpaceOrigin.Inputs;
 
 namespace SpaceOrigin.SpaceInvaders
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class PlayerController : MonoBehaviour, IFireCommand, IMoveCommand
     {
         private PlayerView m_playerView;
@@ -12,18 +15,20 @@ namespace SpaceOrigin.SpaceInvaders
 
         public void Start()
         {
-            PlayerModel playerModel = new PlayerModel();
-            playerModel.Position = transform.position;
-            CreatePlayerController(playerModel);
+         
+        }
+
+        void OnDisable()
+        { 
+            InputHandler.Instance.m_fireCommand = null;
+            InputHandler.Instance.m_moveCommand = null;
         }
 
         public void CreatePlayerController(PlayerModel playerModel)
         {
             m_playerView = GetComponent<PlayerView>(); // view is attached to the same object
             m_playerModel = playerModel;
-
             m_playerModel.OnPositionChanged += m_playerView.SetPosition;
-
             InputHandler.Instance.m_fireCommand = this;
             InputHandler.Instance.m_moveCommand = this;
         }
@@ -41,6 +46,8 @@ namespace SpaceOrigin.SpaceInvaders
                 playerBullet.gameObject.SetActive(true);
 
                 m_playerModel.LastFireTime = Time.time;
+
+                playerBullet.PlayFireSound();
             } 
         }
 
