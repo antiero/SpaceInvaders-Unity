@@ -1,0 +1,7 @@
+Logs/*
+Library/*
+Temp/*
+.DS_STORE*
+*.sln
+.vsconfig
+*.csproj
