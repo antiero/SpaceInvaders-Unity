@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace SpaceOrigin.ObjectPool
 {
-    public class PoolParent : MonoBehaviour
+    public class PoolParent
     {
         static PoolParent ms_sharedInstance;
         static Transform m_poolParentTrans;
