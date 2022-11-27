@@ -477,6 +477,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1865907613}
     m_Modifications:
+    - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
+        type: 3}
+      propertyPath: color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
+        type: 3}
+      propertyPath: color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
+        type: 3}
+      propertyPath: color.r
+      value: 0.42745098
+      objectReference: {fileID: 0}
     - target: {fileID: 7027144509530838723, guid: 33f20a081364ca348b7e09d049033b57,
         type: 3}
       propertyPath: m_RootOrder
@@ -1412,7 +1427,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1167431784}
   m_Layer: 0
-  m_Name: Mangers
+  m_Name: Managers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1573,6 +1588,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1865907613}
     m_Modifications:
+    - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
+        type: 3}
+      propertyPath: color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
+        type: 3}
+      propertyPath: color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
+        type: 3}
+      propertyPath: color.r
+      value: 0.42745098
+      objectReference: {fileID: 0}
     - target: {fileID: 7027144509530838723, guid: 33f20a081364ca348b7e09d049033b57,
         type: 3}
       propertyPath: m_RootOrder
@@ -1868,7 +1898,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 1, b: 0.49680614, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1931,6 +1961,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1865907613}
     m_Modifications:
+    - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
+        type: 3}
+      propertyPath: color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
+        type: 3}
+      propertyPath: color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
+        type: 3}
+      propertyPath: color.r
+      value: 0.42745098
+      objectReference: {fileID: 0}
     - target: {fileID: 7027144509530838723, guid: 33f20a081364ca348b7e09d049033b57,
         type: 3}
       propertyPath: m_RootOrder
@@ -2426,7 +2471,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1933469606}
   m_Layer: 0
-  m_Name: Boarders
+  m_Name: Borders
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2599,6 +2644,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1865907613}
     m_Modifications:
+    - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
+        type: 3}
+      propertyPath: color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
+        type: 3}
+      propertyPath: color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
+        type: 3}
+      propertyPath: color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
+        type: 3}
+      propertyPath: color.r
+      value: 0.42631197
+      objectReference: {fileID: 0}
     - target: {fileID: 6364629346292974172, guid: 33f20a081364ca348b7e09d049033b57,
         type: 3}
       propertyPath: m_Enabled

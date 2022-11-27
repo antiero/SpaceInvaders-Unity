@@ -13,6 +13,7 @@ namespace SpaceOrigin.SpaceInvaders
         #region private varibales
         private float m_radiusOfPixelCheck = 8.04f;
         private SpriteRenderer m_bunkerSprite;  // bunker sprite coomponent
+        public Color color;
         #endregion
 
         #region unity callbacks
@@ -20,6 +21,7 @@ namespace SpaceOrigin.SpaceInvaders
         void Start()
         {
             m_bunkerSprite = gameObject.GetComponent<SpriteRenderer>(); // accesing the sprite components
+            m_bunkerSprite.color = color;
         }
 
         // Update is called once per frame
